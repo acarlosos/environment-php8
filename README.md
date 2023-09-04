@@ -4,37 +4,37 @@
 Primeiramente, verifique se você está no seu diretório home e faça uma cópia da versão mais recente do Projeto para um diretório chamado environment:
 
     $ cd ~
-    $ git clone git@bitbucket.org:sign-scope/environment.git environment
+    $ git clone git@github.com:acarlosos/environment-php8.git environment-php8
 
 Vá até o diretório environment:
 
-    $ cd ~/environment
+    $ cd ~/environment-php8
 
-Vamos fazer uma cópia do arquivo .env.example para .env e inserir as configurações do banco de dados:
+Vamos fazer uma cópia do arquivo .env-example para .env e inserir as configurações do banco de dados:
 
-    $ cp .env.example .env
-
-Crie o diretório www:
-
-    $ mkdir www
-
-Em seguida vamos clonar o projeto aplicacao-web
-
-    $ git clone git@bitbucket.org:sign-scope/aplicacao-web.git .
+    $ cp .env-example .env
 
 Hora de levantar os containers:
 
-    $ docker-compose up -d --build
+    $ docker-compose up -d
 
-Em seguida, utilize a imagem do composer para montar os diretórios que você precisará para seu projeto:
+Você pode conseferir se o containner subiu corretamento com o commando docker ps:
 
-    $ docker exec -it signscope-app composer install
+    $ docker ps
+
+Acesse o container laravel-app:
+
+    $ docker exec -it CONTAINER_ID bash
+
+Em seguida vamos baixar o projeto Laravel
+
+    $ composer create-project laravel/laravel public
+
+Acesse a pasta do projeto public:
+
+    $ cd public
 
 ## Passo 2 - Modificando as configurações do ambiente e executando os contêineres
-
-Como passo final, porém, vamos fazer uma cópia do arquivo .env.example que o Laravel inclui por padrão e nomear a copia .env, que é o arquivo que o Laravel espera para definir seu ambiente:
-
-    $ cp .env.example .env
 
 Você pode agora modificar o arquivo .env no contêiner app para incluir detalhes específicos sobre sua configuração.
 
@@ -50,10 +50,10 @@ O DB_PASSWORD será a senha segura que você gostaria de usar para esta conta de
 ```/var/www/.env```
 ```
 DB_CONNECTION=mysql
-DB_HOST=db
-DB_PORT=3306
-DB_DATABASE=laravel_app
-DB_USERNAME=sign
+DB_HOST=project-db
+DB_PORT=3391
+DB_DATABASE=project
+DB_USERNAME=project
 DB_PASSWORD=secret
 ```
 
@@ -72,9 +72,9 @@ Você verá o seguinte resultado com detalhes sobre seus contêineres do app, we
 
 ```
 CONTAINER ID   IMAGE          COMMAND                  CREATED          STATUS          PORTS                                         NAMES
-ac05f1f4a3cf   mysql:8        "docker-entrypoint.s…"   49 seconds ago   Up 47 seconds   0.0.0.0:3306->3306/tcp, 33060/tcp             db
-bfd339517826   laravel-app    "docker-php-entrypoi…"   54 seconds ago   Up 51 seconds   9000/tcp                                      app
-8124d0d26a48   nginx:alpine   "/docker-entrypoint.…"   52 minutes ago   Up 52 minutes   0.0.0.0:8081->80/tcp, 0.0.0.0:4431->443/tcp   webserver
+ac05f1f4a3cf   mysql:8        "docker-entrypoint.s…"   49 seconds ago   Up 47 seconds   0.0.0.0:3306->3306/tcp, 33060/tcp             project-db
+bfd339517826   project-app    "docker-php-entrypoi…"   54 seconds ago   Up 51 seconds   9000/tcp                                      app
+8124d0d26a48   nginx:alpine   "/docker-entrypoint.…"   52 minutes ago   Up 52 minutes   0.0.0.0:8081->80/tcp, 0.0.0.0:4431->443/tcp   project-webserver
 ```
 
 Usaremos agora o docker-compose exec para definir a chave do aplicativo para o aplicativo Laravel.
@@ -114,7 +114,7 @@ Output
 | Database           |
 +--------------------+
 | information_schema |
-| laravel_app        |
+| project        |
 | mysql              |
 | performance_schema |
 | sys                |
